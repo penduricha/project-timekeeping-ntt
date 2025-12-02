@@ -1,9 +1,13 @@
 <script>
-
+export default {
+  name: "ManageListEmployees"
+}
 </script>
+
 <template>
-  <router-view/>
+
 </template>
+
 <style scoped lang="scss">
 
 </style>
