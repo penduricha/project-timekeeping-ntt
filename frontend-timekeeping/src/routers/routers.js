@@ -1,7 +1,7 @@
 
-import TimeKeepingCamera from "@/pages/TimeKeepingCamera.vue";
-import ManageListEmployees from "@/pages/ManageListEmployees.vue";
-import PageNotFound from "@/pages/PageNotFound.vue";
+import TimeKeepingCamera from "@/pages/timekeeping-camera/TimeKeepingCamera.vue";
+import ManageListEmployees from "@/pages/manage-list-employee/ManageListEmployees.vue";
+import PageNotFound from "@/pages/page-not-found/PageNotFound.vue";
 
 
 const routers = [

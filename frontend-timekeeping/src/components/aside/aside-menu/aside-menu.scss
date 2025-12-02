@@ -1,0 +1,96 @@
+.aside-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 15rem;
+  transition: 0.2s ease-in-out;
+}
+
+.expand-aside-menu {
+  &.is-expanded {
+    width: 30rem;
+  }
+
+  &.is-not-expanded {
+    width: 10rem;
+  }
+}
+
+.header-menu {
+  width: 100%;
+  height: 8rem;
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.image-ntt-logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.btn-toggle-menu {
+  background-color: transparent;
+}
+
+.section-menu {
+  width: 100%;
+  min-height: calc(100vh - 8rem - 5rem);
+}
+
+.style-button-item-menu {
+  width: 100%;
+  height: 70px;
+  color: #000000;
+  font-size: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 2.5rem;
+}
+
+.background-color-button {
+  &.background-grey {
+    background-color: #f7f7f7;
+  }
+
+  &.background-no-grey {
+    background-color: transparent;
+  }
+}
+
+.style-button-item-menu:hover {
+  background-color: #f7f7f7;
+  opacity: 0.8;
+}
+
+.icon-menu {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.text-menu {
+  margin-left: 1.5rem;
+  opacity: 1;
+  transition: 0.3s ease-in-out;
+}
+
+.expand-text-menu {
+  &.is-expanded {
+    margin-left: 1.5rem;
+    opacity: 1;
+  }
+
+  &.is-not-expanded {
+    margin-left: 0;
+    opacity: 0;
+  }
+}
+
+.footer-menu {
+  width: 100%;
+  height: 5rem;
+}

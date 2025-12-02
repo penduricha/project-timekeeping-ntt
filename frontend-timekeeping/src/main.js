@@ -46,7 +46,11 @@ if (pathExists && routers.length > 0) {
 
     if (currentPathExists) {
         let currentPathTrim = currentPath.trim();
-        initPage(routers, currentPathTrim);
+        if(currentPathTrim === '/') {
+            initPage(routers, '/timekeeping-camera');
+        } else {
+            initPage(routers, currentPathTrim);
+        }
     } else {
         initPage(routers, '/page-not-found');
         // Initialize to 404 path
