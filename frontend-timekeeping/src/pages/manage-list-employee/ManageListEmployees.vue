@@ -29,7 +29,7 @@ export default {
 
   methods: {
     setTitlePage() {
-      document.title = 'Danh sách nhân viên chấm công';
+      document.title = 'List employees';
     },
 
     getRoute() {

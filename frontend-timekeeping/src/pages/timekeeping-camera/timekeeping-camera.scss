@@ -8,4 +8,76 @@
   width: 100%;
   min-height: calc(100vh);
   background-color: #42b883;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.box-camera-and-employee {
+  background-color: white;
+  width: 80rem;
+  height: 40rem;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.box-camera-take-photo {
+  height: 35rem;
+  width: 45rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.style-video-camera {
+  width: auto;
+  height: 450px;
+}
+
+.box-view-employee {
+  height: 35rem;
+  width: 30rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  padding-top: 1rem;
+  gap: 0.5rem;
+}
+
+.box-view-image-employee {
+  width: 30rem;
+  height: 20rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.img-employee-face {
+  object-fit: contain;
+  width: auto;
+  height: 20rem;
+}
+
+.box-view-text-employee {
+  border: solid;
+  width: 30rem;
+  height: 10rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  gap: 0.25rem;
+  padding-left: 1rem;
+}
+
+.span-txt-employee {
+  width: 100%;
+  font-size: 19px;
 }
