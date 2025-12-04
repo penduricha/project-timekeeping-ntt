@@ -12,13 +12,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tensorflow-models/face-detection": "^1.0.3",
+    "@tensorflow-models/face-landmarks-detection": "^1.0.6",
+    "@tensorflow/tfjs": "^4.22.0",
+    "@vladmandic/face-api": "^1.7.15",
     "html2canvas": "^1.4.1",
     "vue": "^3.5.25"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.2",
+    "axios": "^1.13.2",
     "face-api.js": "^0.22.2",
     "vite": "^7.2.4",
-    "vite-plugin-vue-devtools": "^8.0.5"
+    "vite-plugin-vue-devtools": "^8.0.5",
+    "vue-axios": "^3.5.2"
   }
 }

@@ -1,15 +1,17 @@
 <template>
   <div id="app">
-    <CameraCapture />
+    <CameraCapture/>
   </div>
 </template>
 
 <script>
 import CameraCapture from './CameraCapture.vue';
+import CameraCaptureFirst from "@/CameraCaptureFirst.vue";
 
 export default {
   components: {
-    CameraCapture
+    CameraCapture,
+    CameraCaptureFirst
   }
 }
 </script>

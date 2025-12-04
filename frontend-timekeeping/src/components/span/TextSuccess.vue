@@ -18,7 +18,7 @@ export default {
 <style scoped lang="scss">
 .span-style {
   font-size: 18px;
-  color: #ff2c2c;
+  color: green;
   width: 100%;
   text-align: center;
   display: block;
