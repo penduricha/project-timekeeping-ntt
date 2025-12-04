@@ -18,6 +18,12 @@ export default {
         btnText: "Take a photo",
         btnLoading: false,
       },
+
+      buttonResetData : {
+        btnDisable: false,
+        btnText: "Reset data",
+        btnLoading: false,
+      },
     }
   },
 
@@ -70,11 +76,24 @@ export default {
       <div class="box-camera-and-employee">
         <div class="box-camera-take-photo">
           <video ref="video" autoplay class="style-video-camera"/>
-          <ButtonBlue :disable-button="buttonTakeScreenShot.btnDisable"
-                      :loading-button="buttonTakeScreenShot.btnLoading"
-                      :text-button="buttonTakeScreenShot.btnText"
-                      class="button-take-photo"
-          />
+          <nav class="nav-btn-control-take-photo">
+            <ButtonBlue :disable-button="buttonTakeScreenShot.btnDisable"
+                        :loading-button="buttonTakeScreenShot.btnLoading"
+                        :text-button="buttonTakeScreenShot.btnText"
+                        class="button-control"
+            />
+            <ButtonBlue :disable-button="buttonResetData.btnDisable"
+                        :loading-button="buttonResetData.btnLoading"
+                        :text-button="buttonResetData.btnText"
+                        class="button-control"
+            />
+          </nav>
+
+<!--          <ButtonBlue :disable-button="buttonTakeScreenShot.btnDisable"-->
+<!--                      :loading-button="buttonTakeScreenShot.btnLoading"-->
+<!--                      :text-button="buttonTakeScreenShot.btnText"-->
+<!--                      class="button-take-photo"-->
+<!--          />-->
         </div>
         <div class="box-view-employee">
           <h5>Detail Employee</h5>
@@ -87,7 +106,7 @@ export default {
             <span class="span-txt-employee">Employee ID: 1000</span>
             <span class="span-txt-employee">Employee Name: Tu Quang Nhat</span>
             <span class="span-txt-employee">Gender: Male</span>
-            <span class="span-txt-employee">Position: Dev</span>
+            <span class="span-txt-employee">Position: Dev Fullstack</span>
           </div>
         </div>
       </div>
@@ -97,7 +116,7 @@ export default {
 </template>
 
 <style scoped lang="scss">
-.button-take-photo {
+.button-control {
   width: 20rem;
   height: 3.5rem;
 }
