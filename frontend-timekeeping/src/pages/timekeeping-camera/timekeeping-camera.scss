@@ -35,9 +35,18 @@
 }
 
 .style-video-camera {
-  width: auto;
+  width: 37.95rem;
   height: 450px;
   border: solid;
+  border-radius: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.style-video-camera-video {
+  width: auto;
+  height: 449.5px;
   border-radius: 1rem;
 }
 
@@ -82,6 +91,8 @@
   object-fit: contain;
   width: auto;
   height: 20rem;
+  border: solid;
+  border-radius: 1rem;
 }
 
 .box-view-text-employee {

@@ -39,7 +39,7 @@ export default {
 
       //parameters about camera
       statusCamera: '',
-
+      currentStream: null,
     }
   },
 
@@ -54,11 +54,11 @@ export default {
   },
 
   mounted(){
-    this.setCameraComputer();
+    //this.setCameraComputer();
   },
 
   onUnmounted() {
-
+    this.closeCameraComputer();
   },
 
   methods: {
@@ -66,11 +66,26 @@ export default {
       document.title = 'Take a photo to check attendance';
     },
 
-    setCameraComputer() {
+    async openCameraComputer() {
       navigator.mediaDevices.getUserMedia({ video: true })
           .then(stream => {
             this.$refs.video.srcObject = stream;
+            this.currentStream = stream;
+            this.buttonTakeScreenShot.btnText = "Close camera";
+          })
+          .catch(err => {
+            console.error(err);
           });
+    },
+
+    async closeCameraComputer() {
+      if (this.currentStream) {
+        const tracks = this.currentStream.getTracks();
+        tracks.forEach(track => track.stop()); // Dừng tất cả các track
+        this.$refs.video.srcObject = null; // Đặt srcObject về null
+        this.currentStream = null; // Xóa stream đã lưu
+        this.buttonTakeScreenShot.btnText = "Open camera";
+      }
     },
 
     getGenderFromBoolean(genderBoolean) {
@@ -99,10 +114,31 @@ export default {
 
     async startOpenCamera() {
 
+      try {
+        //liên kết camera
+        await this.openCameraComputer();
+
+
+        // Bắt đầu vòng lặp detect
+        // detectInterval = setInterval(detectFaces, 100) // 300ms là ổn, nhẹ
+      } catch (err) {
+       // error.value = 'Không mở được camera: ' + err.message
+        alert(err);
+      }
     },
 
     async stopCamera() {
 
+      try {
+        //liên kết camera
+        await this.closeCameraComputer();
+
+        // Bắt đầu vòng lặp detect
+        // detectInterval = setInterval(detectFaces, 100) // 300ms là ổn, nhẹ
+      } catch (err) {
+        // error.value = 'Không mở được camera: ' + err.message
+        alert(err);
+      }
     },
   },
 
@@ -122,7 +158,13 @@ export default {
     <main class="main-time-keeping-camera">
       <div class="box-camera-and-employee">
         <div class="box-camera-take-photo">
-          <video ref="video" autoplay class="style-video-camera"/>
+          <div class="style-video-camera">
+            <video ref="video"
+                   muted playsinline autoplay
+                   class="style-video-camera-video"
+            />
+          </div>
+
           <div class="box-status-camera">
 <!--            <TextInvalid  text-span="An error occurred when open camera."/>-->
             <TextSuccess text-span="Detected face"/>
@@ -132,6 +174,7 @@ export default {
                         :loading-button="buttonTakeScreenShot.btnLoading"
                         :text-button="buttonTakeScreenShot.btnText"
                         class="button-control"
+                        @click="checkTextButtonToToggle"
             />
             <ButtonBlue :disable-button="buttonResetData.btnDisable"
                         :loading-button="buttonResetData.btnLoading"
@@ -143,7 +186,8 @@ export default {
         <div class="box-view-employee">
           <h5>Detail Employee</h5>
           <div class="box-view-image-employee">
-            <img src="@/assets/images/img-employee-face/quang-nhat.jpg" alt="image face employee"
+            <img src="@/assets/images/img-employee-face/quang-nhat.jpg"
+                 alt="image face employee"
                  class="img-employee-face"
                  >
           </div>

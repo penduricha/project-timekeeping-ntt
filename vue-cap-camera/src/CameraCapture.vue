@@ -99,7 +99,6 @@ const detectFaces = async () => {
       status.value = 'Không thấy khuôn mặt...'
       faceDetectedBefore = false
     }
-
   } catch (err) {
     console.error('Lỗi detect:', err)
   }
