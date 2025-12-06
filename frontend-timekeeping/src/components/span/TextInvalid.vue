@@ -6,13 +6,19 @@ export default {
       type: String,
       default: null,
       required: true
+    },
+
+    isView: {
+      type: Boolean,
+      default: false,
+      required: true,
     }
   }
 }
 </script>
 
 <template>
-  <span v-if="textSpan" class="span-style">{{this.textSpan}}</span>
+  <span v-if="isView" class="span-style">{{this.textSpan}}</span>
 </template>
 
 <style scoped lang="scss">

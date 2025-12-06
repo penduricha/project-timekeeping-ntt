@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vladmandic/face-api": "^1.7.15",
     "bootstrap": "^5.3.8",
     "scss": "^0.2.4",
     "vue": "^3.5.25",

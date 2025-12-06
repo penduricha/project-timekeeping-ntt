@@ -6,6 +6,13 @@ import ButtonBlue from "@/components/button/button-blue/ButtonBlue.vue";
 import TextInvalid from "@/components/span/TextInvalid.vue";
 import TransformText from "@/others/TransformText.js";
 import TextSuccess from "@/components/span/TextSuccess.vue";
+
+// run npm i @vladmandic/face-api: Library detected face
+// import thư viện cần thiết
+
+import * as faceapi from '@vladmandic/face-api'
+
+
 export default {
   name: "TimeKeepingCamera",
 
@@ -39,7 +46,12 @@ export default {
 
       //parameters about camera
       statusCamera: '',
+      statusSuccess: true,
+      statusError: false,
       currentStream: null,
+      detectInterval: null,
+      //video: null,
+      faceDetectedBefore: false,
     }
   },
 
@@ -57,7 +69,7 @@ export default {
     //this.setCameraComputer();
   },
 
-  onUnmounted() {
+  beforeUnmount() {
     this.closeCameraComputer();
   },
 
@@ -67,15 +79,33 @@ export default {
     },
 
     async openCameraComputer() {
-      navigator.mediaDevices.getUserMedia({ video: true })
-          .then(stream => {
-            this.$refs.video.srcObject = stream;
-            this.currentStream = stream;
-            this.buttonTakeScreenShot.btnText = "Close camera";
-          })
-          .catch(err => {
-            console.error(err);
-          });
+      // navigator.mediaDevices.getUserMedia(
+      //     // { width: 'auto', height: 449.5, facingMode: 'user' },
+      //     // audio: false
+      //     {
+      //       video: { width: 720, height: 560, facingMode: 'user' },
+      //       audio: false
+      //     }).then(stream => {
+      //       this.$refs.video.srcObject = stream;
+      //       this.currentStream = stream;
+      //       this.buttonTakeScreenShot.btnText = "Close camera";
+      //     })
+      //     .catch(err => {
+      //       console.error(err);
+      //     });
+      try{
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 720, height: 560, facingMode: 'user' },
+          audio: false
+        })
+
+        this.$refs.video.srcObject = stream
+        this.currentStream = stream
+        await this.$refs.video.play();
+        this.buttonTakeScreenShot.btnText = "Close camera";
+      }catch(error) {
+        alert(error.message);
+      }
     },
 
     async closeCameraComputer() {
@@ -85,7 +115,19 @@ export default {
         this.$refs.video.srcObject = null; // Đặt srcObject về null
         this.currentStream = null; // Xóa stream đã lưu
         this.buttonTakeScreenShot.btnText = "Open camera";
+        //reset status camera và text
+        this.resetCameraParameters();
       }
+    },
+
+    resetCameraParameters() {
+      this.statusCamera = '';
+      this.statusSuccess = true;
+      this.statusError = false;
+      //this.video = null;
+      this.currentStream = null;
+      this.faceDetectedBefore = false;
+      this.detectInterval = null;
     },
 
     getGenderFromBoolean(genderBoolean) {
@@ -112,15 +154,64 @@ export default {
       }
     },
 
-    async startOpenCamera() {
+    async loadModelsFaceDetected() {
+      const model_url = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+      if (faceapi.nets.tinyFaceDetector.isLoaded) {
+        return;
+      }
+      try {
+        this.statusCamera = 'Loading models...';
+        await faceapi.nets.tinyFaceDetector.loadFromUri(model_url)
+        await faceapi.nets.faceLandmark68Net.loadFromUri(model_url)
+        // Không cần faceRecognitionNet nếu chỉ detect
+        console.log('Models loaded thành công!')
+        this.statusCamera = 'Face detection system is ready.';
+      }catch (err) {
+        this.statusCamera = err.message;
+        this.statusError = true;
+        this.statusSuccess = false;
+        console.error(err)
+      }
+    },
 
+    async detectedFace() {
+      try {
+        const detections = await faceapi.detectAllFaces(
+            this.$refs.video,
+            new faceapi.TinyFaceDetectorOptions({
+              inputSize: 320,     // Nhẹ hơn, nhanh hơn
+              scoreThreshold: 0.5
+            })
+        )
+
+        const hasFace = detections.length > 0;
+
+        if (hasFace && !this.faceDetectedBefore) {
+          // CHỈ LOG 1 LẦN KHI MỚI PHÁT HIỆN
+          console.log('Đã phát hiện')
+          this.statusCamera = 'Detected face.';
+          this.statusError = false;
+          this.statusSuccess = true;
+          this.faceDetectedBefore = true;
+        } else if (!hasFace && this.faceDetectedBefore) {
+          // Khi khuôn mặt biến mất
+          this.statusCamera = 'Can not find a face.';
+          this.statusError = true;
+          this.statusSuccess = false;
+          this.faceDetectedBefore = false;
+        }
+      } catch (err) {
+        console.error('Lỗi detect:', err)
+      }
+    },
+
+    async startOpenCamera() {
       try {
         //liên kết camera
         await this.openCameraComputer();
-
-
-        // Bắt đầu vòng lặp detect
-        // detectInterval = setInterval(detectFaces, 100) // 300ms là ổn, nhẹ
+        await this.loadModelsFaceDetected();
+        // 1/10 giây
+        this.detectInterval = setInterval(this.detectedFace, 100);
       } catch (err) {
        // error.value = 'Không mở được camera: ' + err.message
         alert(err);
@@ -132,7 +223,7 @@ export default {
       try {
         //liên kết camera
         await this.closeCameraComputer();
-
+        this.statusCamera = '';
         // Bắt đầu vòng lặp detect
         // detectInterval = setInterval(detectFaces, 100) // 300ms là ổn, nhẹ
       } catch (err) {
@@ -166,8 +257,8 @@ export default {
           </div>
 
           <div class="box-status-camera">
-<!--            <TextInvalid  text-span="An error occurred when open camera."/>-->
-            <TextSuccess text-span="Detected face"/>
+            <TextInvalid :text-span="statusCamera" :is-view="statusError"/>
+            <TextSuccess :text-span="statusCamera" :is-view="statusSuccess"/>
           </div>
           <nav class="nav-btn-control-take-photo">
             <ButtonBlue :disable-button="buttonTakeScreenShot.btnDisable"

@@ -2,3 +2,4 @@
 2. Cài đặt thư viện scss/sass: npm install -D sass-embedded
 3. Cài đặt thư viện axios để thao tác http/https: npm i axios
 4. Cài Vuetify (đẹp UI), vue-router quản lí router: npm i vue-router vuetify
+5. Cài FaceAPI để nhận diện được face: npm i @vladmandic/face-api

@@ -17,6 +17,7 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import * as faceapi from '@vladmandic/face-api'
+// run npm i @vladmandic/face-api
 
 const video = ref(null)
 const canvas = ref(null)
