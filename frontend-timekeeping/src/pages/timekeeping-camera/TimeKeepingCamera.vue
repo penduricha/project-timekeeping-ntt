@@ -52,6 +52,10 @@ export default {
       detectInterval: null,
       //video: null,
       faceDetectedBefore: false,
+
+      //frame khuôn mat
+      currentFaceBox: null, // lưu box hiện tại để di chuyển khung
+      faceStableCount: 0,   // đếm frame ổn định (tùy chọn)
     }
   },
 
@@ -114,14 +118,17 @@ export default {
         tracks.forEach(track => track.stop()); // Dừng tất cả các track
         this.$refs.video.srcObject = null; // Đặt srcObject về null
         this.currentStream = null; // Xóa stream đã lưu
-        this.buttonTakeScreenShot.btnText = "Open camera";
-        //reset status camera và text
-        this.resetCameraParameters();
+
       }
+      await new Promise(resolve => setTimeout(resolve, 200));
+      this.buttonTakeScreenShot.btnText = "Open camera";
+      this.resetCameraParameters();
     },
 
     resetCameraParameters() {
-      this.statusCamera = '';
+      if(this.statusCamera !== '') {
+        this.statusCamera = '';
+      }
       this.statusSuccess = true;
       this.statusError = false;
       //this.video = null;
@@ -175,33 +182,74 @@ export default {
     },
 
     async detectedFace() {
+      const video = this.$refs.video;
+      const tracker = this.$refs.faceTracker;
+
+      if (!video || video.readyState < 2 || !video.videoWidth || !tracker) {
+        this.currentFaceBox = null;
+        return;
+      }
+
       try {
         const detections = await faceapi.detectAllFaces(
-            this.$refs.video,
+            video,
             new faceapi.TinyFaceDetectorOptions({
-              inputSize: 320,     // Nhẹ hơn, nhanh hơn
+              inputSize: 320,
               scoreThreshold: 0.5
             })
-        )
+        );
 
-        const hasFace = detections.length > 0;
+        if (detections.length > 0) {
+          // Lấy khuôn mặt có độ tin cậy cao nhất
+          const detection = detections[0];
+          const box = detection.box;
 
-        if (hasFace && !this.faceDetectedBefore) {
-          // CHỈ LOG 1 LẦN KHI MỚI PHÁT HIỆN
-          console.log('Đã phát hiện')
-          this.statusCamera = 'Detected face.';
-          this.statusError = false;
-          this.statusSuccess = true;
-          this.faceDetectedBefore = true;
-        } else if (!hasFace && this.faceDetectedBefore) {
-          // Khi khuôn mặt biến mất
-          this.statusCamera = 'Can not find a face.';
-          this.statusError = true;
-          this.statusSuccess = false;
-          this.faceDetectedBefore = false;
+          // Tính tỷ lệ thực tế giữa video stream và vùng hiển thị
+          //const videoRect = video.getBoundingClientRect();
+          const displayWidth = video.offsetWidth;
+          const displayHeight = video.offsetHeight;
+
+          const scaleX = displayWidth / video.videoWidth;
+          const scaleY = displayHeight / video.videoHeight;
+          const scale = Math.max(scaleX, scaleY); // vì object-fit: contain/cover
+
+          const offsetX = (displayWidth - video.videoWidth * scale) / 2;
+          const offsetY = (displayHeight - video.videoHeight * scale) / 2;
+
+          // Tọa độ chính xác trên màn hình
+          const x = offsetX + box.x * scale;
+          const y = offsetY + box.y * scale;
+          const width = box.width * scale;
+          const height = box.height * scale;
+
+          // Cập nhật vị trí khung tracker
+          this.currentFaceBox = { x, y, width, height };
+
+          tracker.style.transform = `translate(${x + width / 2}px, ${y + height / 2}px)`;
+          tracker.style.width = `${width + 40}px`;
+          tracker.style.height = `${height + 60}px`;
+
+          // Cập nhật trạng thái
+          if (!this.faceDetectedBefore) {
+            this.statusCamera = 'Detected face.';
+            this.statusSuccess = true;
+            this.statusError = false;
+            this.faceDetectedBefore = true;
+          }
+
+        } else {
+          // Không thấy mặt → ẩn khung
+          this.currentFaceBox = null;
+          if (this.faceDetectedBefore) {
+            this.statusCamera = 'Can not detect face.';
+            this.statusSuccess = false;
+            this.statusError = true;
+            this.faceDetectedBefore = false;
+          }
         }
       } catch (err) {
-        console.error('Lỗi detect:', err)
+        console.error('Lỗi detect face:', err);
+        this.currentFaceBox = null;
       }
     },
 
@@ -213,19 +261,16 @@ export default {
         // 1/10 giây
         this.detectInterval = setInterval(this.detectedFace, 100);
       } catch (err) {
-       // error.value = 'Không mở được camera: ' + err.message
+        // error.value = 'Không mở được camera: ' + err.message
         alert(err);
       }
     },
 
     async stopCamera() {
-
+      //this.resetCameraParameters();
       try {
         //liên kết camera
         await this.closeCameraComputer();
-        this.statusCamera = '';
-        // Bắt đầu vòng lặp detect
-        // detectInterval = setInterval(detectFaces, 100) // 300ms là ổn, nhẹ
       } catch (err) {
         // error.value = 'Không mở được camera: ' + err.message
         alert(err);
@@ -250,10 +295,24 @@ export default {
       <div class="box-camera-and-employee">
         <div class="box-camera-take-photo">
           <div class="style-video-camera">
-            <video ref="video"
-                   muted playsinline autoplay
-                   class="style-video-camera-video"
-            />
+            <video
+                ref="video"
+                muted
+                playsinline
+                autoplay
+                class="style-video-camera-video"
+            ></video>
+
+            <!-- KHUNG DI CHUYỂN THEO KHUÔN MẶT -->
+            <div
+                ref="faceTracker"
+                class="face-tracker-overlay"
+                :class="{ 'detected': faceDetectedBefore && currentFaceBox }"
+            >
+              <div class="face-box">
+                <div class="face-glow"></div>
+              </div>
+            </div>
           </div>
 
           <div class="box-status-camera">
@@ -280,7 +339,7 @@ export default {
             <img src="@/assets/images/img-employee-face/quang-nhat.jpg"
                  alt="image face employee"
                  class="img-employee-face"
-                 >
+            >
           </div>
           <div class="box-view-text-employee">
             <span class="span-txt-employee">Employee ID: {{employee.employeeID}}</span>
