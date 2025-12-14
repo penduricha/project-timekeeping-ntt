@@ -25,21 +25,21 @@ export default {
 
   data() {
     return {
-      buttonTakeScreenShot : {
+      buttonTakeScreenShot: {
         btnDisable: false,
         btnText: "Open camera",
         btnLoading: false,
       },
 
-      buttonResetData : {
+      buttonResetData: {
         btnDisable: false,
         btnText: "Reset data",
         btnLoading: false,
       },
 
       employee: {
-        employeeID : 1000,
-        employeeName : 'Tu Quang Nhat',
+        employeeID: 1000,
+        employeeName: 'Tu Quang Nhat',
         gender: true,
         position: 'Dev fullstack'
       },
@@ -56,12 +56,16 @@ export default {
       //frame khuôn mat
       currentFaceBox: null, // lưu box hiện tại để di chuyển khung
       faceStableCount: 0,   // đếm frame ổn định (tùy chọn)
+
+      //image to post
+      imageSrc: null,
+
+      //hàm vẽ khung xanh
+      //isDrawGreenFame: false,
     }
   },
 
-  props: {
-
-  },
+  props: {},
 
   created() {
     //set path
@@ -69,7 +73,7 @@ export default {
     this.setTitlePage();
   },
 
-  mounted(){
+  mounted() {
     //this.setCameraComputer();
   },
 
@@ -83,23 +87,9 @@ export default {
     },
 
     async openCameraComputer() {
-      // navigator.mediaDevices.getUserMedia(
-      //     // { width: 'auto', height: 449.5, facingMode: 'user' },
-      //     // audio: false
-      //     {
-      //       video: { width: 720, height: 560, facingMode: 'user' },
-      //       audio: false
-      //     }).then(stream => {
-      //       this.$refs.video.srcObject = stream;
-      //       this.currentStream = stream;
-      //       this.buttonTakeScreenShot.btnText = "Close camera";
-      //     })
-      //     .catch(err => {
-      //       console.error(err);
-      //     });
-      try{
+      try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 720, height: 560, facingMode: 'user' },
+          video: {width: 720, height: 560, facingMode: 'user'},
           audio: false
         })
 
@@ -107,7 +97,7 @@ export default {
         this.currentStream = stream
         await this.$refs.video.play();
         this.buttonTakeScreenShot.btnText = "Close camera";
-      }catch(error) {
+      } catch (error) {
         alert(error.message);
       }
     },
@@ -126,7 +116,7 @@ export default {
     },
 
     resetCameraParameters() {
-      if(this.statusCamera !== '') {
+      if (this.statusCamera !== '') {
         this.statusCamera = '';
       }
       this.statusSuccess = true;
@@ -135,6 +125,7 @@ export default {
       this.currentStream = null;
       this.faceDetectedBefore = false;
       this.detectInterval = null;
+      this.imageSrc = null;
     },
 
     getGenderFromBoolean(genderBoolean) {
@@ -156,7 +147,7 @@ export default {
     async checkTextButtonToToggle() {
       if (this.buttonTakeScreenShot.btnText === "Open camera") {
         await this.startOpenCamera();
-      } else if (this.buttonTakeScreenShot.btnText === "Close camera"){
+      } else if (this.buttonTakeScreenShot.btnText === "Close camera") {
         await this.stopCamera();
       }
     },
@@ -173,12 +164,62 @@ export default {
         // Không cần faceRecognitionNet nếu chỉ detect
         console.log('Models loaded thành công!')
         this.statusCamera = 'Face detection system is ready.';
-      }catch (err) {
+      } catch (err) {
         this.statusCamera = err.message;
         this.statusError = true;
         this.statusSuccess = false;
         console.error(err)
       }
+    },
+
+    async takeSnapShot() {
+      const canvas = this.$refs.canvas;
+      const context = canvas.getContext('2d');
+
+      // Set canvas size
+      canvas.width = this.$refs.video.videoWidth;
+      canvas.height = this.$refs.video.videoHeight;
+
+      // Draw video image to canvas
+      context.drawImage(this.$refs.video, 0, 0, canvas.width, canvas.height);
+
+      // Convert canvas to Base64 string
+      this.imageSrc = canvas.toDataURL('image/png');
+      console.log('Image src base64:', this.imageSrc)
+      if (this.imageSrc) {
+        //gọi cho API
+      }
+    },
+
+    drawGreenFrame(video, tracker, detections) {
+      // Vẽ khung hình xanh liên tục
+      const detection = detections[0];
+      const box = detection.box;
+
+      // Tính tỷ lệ thực tế giữa video stream và vùng hiển thị
+      //const videoRect = video.getBoundingClientRect();
+      const displayWidth = video.offsetWidth;
+      const displayHeight = video.offsetHeight;
+
+      const scaleX = displayWidth / video.videoWidth;
+      const scaleY = displayHeight / video.videoHeight;
+      const scale = Math.max(scaleX, scaleY); // vì object-fit: contain/cover
+
+      const offsetX = (displayWidth - video.videoWidth * scale) / 2;
+      const offsetY = (displayHeight - video.videoHeight * scale) / 2;
+
+      // Tọa độ chính xác trên màn hình
+      const x = offsetX + box.x * scale;
+      const y = offsetY + box.y * scale;
+      const width = box.width * scale;
+      const height = box.height * scale;
+
+      // Cập nhật vị trí khung tracker
+      this.currentFaceBox = {x, y, width, height};
+
+      tracker.style.transform = `translate(${x + width / 2}px, ${y + height / 2}px)`;
+      tracker.style.width = `${width + 40}px`;
+      tracker.style.height = `${height + 60}px`;
     },
 
     async detectedFace() {
@@ -201,51 +242,25 @@ export default {
 
         if (detections.length > 0) {
           // Lấy khuôn mặt có độ tin cậy cao nhất
-          const detection = detections[0];
-          const box = detection.box;
-
-          // Tính tỷ lệ thực tế giữa video stream và vùng hiển thị
-          //const videoRect = video.getBoundingClientRect();
-          const displayWidth = video.offsetWidth;
-          const displayHeight = video.offsetHeight;
-
-          const scaleX = displayWidth / video.videoWidth;
-          const scaleY = displayHeight / video.videoHeight;
-          const scale = Math.max(scaleX, scaleY); // vì object-fit: contain/cover
-
-          const offsetX = (displayWidth - video.videoWidth * scale) / 2;
-          const offsetY = (displayHeight - video.videoHeight * scale) / 2;
-
-          // Tọa độ chính xác trên màn hình
-          const x = offsetX + box.x * scale;
-          const y = offsetY + box.y * scale;
-          const width = box.width * scale;
-          const height = box.height * scale;
-
-          // Cập nhật vị trí khung tracker
-          this.currentFaceBox = { x, y, width, height };
-
-          tracker.style.transform = `translate(${x + width / 2}px, ${y + height / 2}px)`;
-          tracker.style.width = `${width + 40}px`;
-          tracker.style.height = `${height + 60}px`;
-
           // Cập nhật trạng thái
+          this.drawGreenFrame(video, tracker, detections);
           if (!this.faceDetectedBefore) {
             this.statusCamera = 'Detected face.';
             this.statusSuccess = true;
             this.statusError = false;
             this.faceDetectedBefore = true;
           }
-
+          // Delay for 300 milliseconds
+          await new Promise(resolve => setTimeout(resolve, 200));
+          await this.takeSnapShot();
+          this.faceDetectedBefore = false;
         } else {
           // Không thấy mặt → ẩn khung
           this.currentFaceBox = null;
-          if (this.faceDetectedBefore) {
-            this.statusCamera = 'Can not detect face.';
-            this.statusSuccess = false;
-            this.statusError = true;
-            this.faceDetectedBefore = false;
-          }
+          this.statusCamera = 'Can not detect face.';
+          this.statusSuccess = false;
+          this.statusError = true;
+          this.faceDetectedBefore = false;
         }
       } catch (err) {
         console.error('Lỗi detect face:', err);
@@ -257,9 +272,10 @@ export default {
       try {
         //liên kết camera
         await this.openCameraComputer();
+        //load models
         await this.loadModelsFaceDetected();
         // 1/10 giây
-        this.detectInterval = setInterval(this.detectedFace, 100);
+        this.detectInterval = setInterval(this.detectedFace, 200);
       } catch (err) {
         // error.value = 'Không mở được camera: ' + err.message
         alert(err);
@@ -278,7 +294,8 @@ export default {
     },
   },
 
-  setup() {
+  setup()
+  {
 
   },
 
@@ -302,12 +319,13 @@ export default {
                 autoplay
                 class="style-video-camera-video"
             ></video>
+            <canvas ref="canvas" style="display: none;"></canvas>
 
             <!-- KHUNG DI CHUYỂN THEO KHUÔN MẶT -->
             <div
                 ref="faceTracker"
                 class="face-tracker-overlay"
-                :class="{ 'detected': faceDetectedBefore && currentFaceBox }"
+                :class="{'detected': currentFaceBox }"
             >
               <div class="face-box">
                 <div class="face-glow"></div>
@@ -342,10 +360,10 @@ export default {
             >
           </div>
           <div class="box-view-text-employee">
-            <span class="span-txt-employee">Employee ID: {{employee.employeeID}}</span>
-            <span class="span-txt-employee">Employee Name: {{employee.employeeName}}</span>
-            <span class="span-txt-employee">Gender: {{getGenderFromBoolean(employee.gender)}}</span>
-            <span class="span-txt-employee">Position: {{employee.position}}</span>
+            <span class="span-txt-employee">Employee ID: {{ employee.employeeID }}</span>
+            <span class="span-txt-employee">Employee Name: {{ employee.employeeName }}</span>
+            <span class="span-txt-employee">Gender: {{ getGenderFromBoolean(employee.gender) }}</span>
+            <span class="span-txt-employee">Position: {{ employee.position }}</span>
           </div>
         </div>
       </div>

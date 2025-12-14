@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <CameraCapture/>
+    <CameraCaptureFirst/>
   </div>
 </template>
 
