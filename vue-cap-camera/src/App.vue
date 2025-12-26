@@ -1,17 +1,19 @@
 <template>
   <div id="app">
-    <CameraCaptureFirst/>
+    <DetectedFace3D/>
   </div>
 </template>
 
 <script>
 import CameraCapture from './CameraCapture.vue';
 import CameraCaptureFirst from "@/CameraCaptureFirst.vue";
+import DetectedFace3D from "@/components/DetectedFace3D.vue";
 
 export default {
   components: {
     CameraCapture,
-    CameraCaptureFirst
+    CameraCaptureFirst,
+    DetectedFace3D,
   }
 }
 </script>

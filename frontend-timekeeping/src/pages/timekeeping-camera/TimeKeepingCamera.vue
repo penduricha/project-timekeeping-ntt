@@ -126,6 +126,7 @@ export default {
       this.faceDetectedBefore = false;
       this.detectInterval = null;
       this.imageSrc = null;
+      this.faceStableCount = 0;
     },
 
     getGenderFromBoolean(genderBoolean) {
@@ -162,8 +163,8 @@ export default {
         await faceapi.nets.tinyFaceDetector.loadFromUri(model_url)
         await faceapi.nets.faceLandmark68Net.loadFromUri(model_url)
         // Không cần faceRecognitionNet nếu chỉ detect
-        console.log('Models loaded thành công!')
-        this.statusCamera = 'Face detection system is ready.';
+        //console.log('Models loaded thành công!')
+        //this.statusCamera = 'Face detection system is ready.';
       } catch (err) {
         this.statusCamera = err.message;
         this.statusError = true;
