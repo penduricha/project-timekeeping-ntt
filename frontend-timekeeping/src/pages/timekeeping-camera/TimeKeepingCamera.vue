@@ -329,7 +329,7 @@ export default {
                 :class="{'detected': currentFaceBox }"
             >
               <div class="face-box">
-                <div class="face-glow"></div>
+                <div class="face-glow"/>
               </div>
             </div>
           </div>
