@@ -164,7 +164,7 @@ export default {
         await faceapi.nets.faceLandmark68Net.loadFromUri(model_url)
         // Không cần faceRecognitionNet nếu chỉ detect
         //console.log('Models loaded thành công!')
-        //this.statusCamera = 'Face detection system is ready.';
+        this.statusCamera = 'Face detection system is ready.';
       } catch (err) {
         this.statusCamera = err.message;
         this.statusError = true;
@@ -189,6 +189,11 @@ export default {
       console.log('Image src base64:', this.imageSrc)
       if (this.imageSrc) {
         //gọi cho API
+        // trả kq cho dữ liệu tt nhân viên,
+        // => Trì hoãn 10 giây sau reset data
+        // lưu session tạm thời
+        // sau 10s clear session và thực hiện gọi khuôn mặt
+        // => gọi lại hàm dò mặt
       }
     },
 
@@ -275,7 +280,7 @@ export default {
         await this.openCameraComputer();
         //load models
         await this.loadModelsFaceDetected();
-        // 1/10 giây
+        // 2/10 giây
         this.detectInterval = setInterval(this.detectedFace, 200);
       } catch (err) {
         // error.value = 'Không mở được camera: ' + err.message

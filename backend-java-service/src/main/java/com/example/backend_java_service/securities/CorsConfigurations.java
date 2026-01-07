@@ -1,0 +1,37 @@
+package com.example.backend_java_service.securities;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+@EnableWebMvc
+public class CorsConfigurations implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins(
+                        "http://localhost:5173", //vue
+                        "http://localhost:5174",
+                        "http://localhost:3000",  // ReactJS
+                        "http://localhost:8081",
+                        "http://localhost:5000",
+                        // React Native may minh
+                        // dùng http://localhost:8082
+                        "http://localhost:4200",  // Angular
+                        "http://localhost:3001" ,//Next.js
+                        "http://127.0.0.1:5173/",//
+                        "http://127.0.0.1:5174/"
+//                        //lecturer
+//                        "https://thesis-software-engineering-lms-source-code-14o8.vercel.app/",
+//                        //student
+//                        "https://thesis-software-engineering-lms-source-code-cj12.vercel.app/"
+
+
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE","PATCH","OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+}

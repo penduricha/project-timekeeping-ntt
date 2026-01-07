@@ -1,3 +1,26 @@
 spring:
-  application:
-    name: backend-java-service
+  datasource:
+    url: jdbc:mariadb://localhost:3306/time_attendance_machine?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8
+    username: root
+    password: 123
+    driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 10
+      auto-commit: true
+
+  #      minimum-idle: Số lượng kết nối tối thiểu trong pool.
+  #      maximum-pool-size: Số lượng kết nối tối đa trong pool.
+  #      auto-commit: Chế độ tự động commit.
+  #      transaction-isolation: Mức độ phân cách giao dịch.
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+
+server:
+  servlet:
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
