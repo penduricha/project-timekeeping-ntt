@@ -1,5 +1,7 @@
 package com.example.backend_java_service.services.i_services;
 
-public interface I_AttendanceCountService {
+import com.example.backend_java_service.models.AttendanceCount;
 
+public interface I_AttendanceCountService {
+    public boolean persistAttendanceCount();
 }
